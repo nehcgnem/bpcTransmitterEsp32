@@ -75,7 +75,7 @@ const int LED_INDICATOR_PIN = 19; // Indicator LED
 
 ### References
 - BPC Time Signal: https://en.wikipedia.org/wiki/BPC_(time_signal)
-- Antenna design credit: https://github.com/tarohs/nisejjy
+- Antenna design credit: https://github.com/luigicalligaris/dcfake77
 
 ---
 
@@ -150,5 +150,5 @@ const int LED_INDICATOR_PIN = 19; // 指示灯
 
 ### 参考资料
 - BPC 时间信号: https://en.wikipedia.org/wiki/BPC_(time_signal)
-- 天线设计参考：https://github.com/tarohs/nisejjy
+- 天线设计参考：https://github.com/luigicalligaris/dcfake77
 
