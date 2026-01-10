@@ -34,7 +34,6 @@ Time synchronization is achieved via **NTP**, and the BPC frames are generated p
   - 0.3 mm diameter enamelled copper wire (漆包线)
   - ~20 turns
   - Series resistor: **330 Ω**
-- Short wire / small coil for near-field testing
 
 **Performance note:** A radio-controlled watch placed within **~20 cm** of the transmitter can successfully synchronize its time.
 
@@ -110,7 +109,6 @@ const int LED_INDICATOR_PIN = 19; // Indicator LED
   - 线径 **0.3 mm 漆包线**
   - **约 20 圈**
   - 串联电阻：**330 Ω**
-- 短导线或小型线圈用于近场接收测试
 
 **实测效果：** 将电波表放置在发射端 **约 20 cm 以内**，可成功完成自动对时。
 
