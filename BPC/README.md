@@ -53,6 +53,11 @@ const int BPC_PIN = 21;          // BPC signal output
 const int LED_INDICATOR_PIN = 19; // Indicator LED
 ```
 
+### Wifi Configuration
+```cpp
+const char* ssid     = "SSID";
+const char* password = "PASSWORD";
+```
 ---
 
 ### How It Works
@@ -127,6 +132,12 @@ const int LED_INDICATOR_PIN = 19; // Indicator LED
 ```cpp
 const int BPC_PIN = 21;          // BPC 信号输出
 const int LED_INDICATOR_PIN = 19; // 指示灯
+```
+
+### 无线配置
+```cpp
+const char* ssid     = "SSID";
+const char* password = "密码";
 ```
 
 ---
