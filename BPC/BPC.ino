@@ -91,10 +91,6 @@ int get_bit(int value, int bit_pos) {
     return (value >> bit_pos) & 1;
 }
 
-// 辅助函数：根据 MSbit 和 LSbit 组合成 0-3 的四进制值
-// msb: 高位值 (0或1)
-// lsb: 低位值 (0或1)
-// 返回: 0-3
 int combine_bits(int msb, int lsb) {
     return (msb << 1) | lsb;
 }
@@ -107,7 +103,6 @@ void loop() {
 
     int seconds = timeinfo.tm_sec;
 
-    // 必须在 :00, :20, :40 开始
     if (seconds % 20 != 0) {
         ledcWrite(LED_INDICATOR_CHANNEL, 127);
         ledcWrite(LEDC_CHANNEL, 127); 
@@ -115,36 +110,19 @@ void loop() {
         return;
     }
 
-    // === 数据准备 ===
-    // 1. 小时处理：表中使用 12小时制 (00-11)，AM/PM 放在 Sec 10
     int hour24 = timeinfo.tm_hour;
     int hour12 = hour24 % 12; 
     int is_pm  = (hour24 >= 12) ? 1 : 0; // 0=AM, 1=PM
-
     int min   = timeinfo.tm_min;
-    int wday  = timeinfo.tm_wday; // 0=Sun, 1=Mon... 但表中 1=Mon, 7=Sun
-    // 转换 wday: tm_wday 0是周日. BPC表: 1=Mon...7=Sun
+    int wday  = timeinfo.tm_wday;
     int bpc_wday = (wday == 0) ? 7 : wday;
-
     int day   = timeinfo.tm_mday;
     int month = timeinfo.tm_mon + 1;
-    int year  = timeinfo.tm_year % 100; // 两位数年份
-
-    // 2. 帧 ID (Sec 01)
-    // 表中: "Second (00, 20 or 40)". 
-    // 编码: 00->00(0), 20->01(1), 40->10(2)? 
-    // 通用做法：20秒 / 20 = 1, 40秒 / 20 = 2.
+    int year  = timeinfo.tm_year % 100;
     int frame_idx = seconds / 20; 
-    // 映射为四进制值：0->0(00), 1->1(01), 2->2(10)
-    
-    // === 编码数组 (0-19) ===
-    int q_codes[20]; // 存储 0,1,2,3
-
-    // [Sec 00] Start of time code 零低电平
+    int q_codes[20];
     q_codes[0] = 6;  
 
-    // [Sec 01] Frame ID (MSb:40, LSb:20) -> 实际上是帧序号
-    // 0s -> 00, 20s -> 01, 40s -> 10
     if (frame_idx == 0)      q_codes[1] = 0; // 00
     else if (frame_idx == 1) q_codes[1] = 1; // 01
     else                     q_codes[1] = 2; // 10
@@ -168,19 +146,11 @@ void loop() {
     q_codes[7] = combine_bits(get_bit(min, 1), get_bit(min, 0));
 
     // [Sec 08] Unused (MSb:0), Day of week (LSb:4 - Wait)
-    // 表格有点怪: Sec08 MSb=0(Unused), LSb=4(Day of week bit 2?)
-    // Sec09 MSb=2, LSb=1
-    // Weekday (1-7) 二进制最大 111. 
-    // Bit 4 (即 100) 在 Sec08 LSb.
     q_codes[8] = combine_bits(0, get_bit(bpc_wday, 2));
 
     // [Sec 09] Day of week (2, 1)
     q_codes[9] = combine_bits(get_bit(bpc_wday, 1), get_bit(bpc_wday, 0));
 
-    // === 计算 P1 校验位 (Sec 01-09 的偶校验) ===
-    // 校验的是二进制位的总和? 通常是所有数据位的异或
-    // 表中: "Even parity over 01-09".
-    // 我们需要把 Sec 01-09 的所有 bit (MSb 和 LSb) 进行异或
     int p1_calc = 0;
     for (int i = 1; i <= 9; i++) {
         p1_calc ^= (q_codes[i] >> 1) & 1; // MSb
@@ -215,7 +185,6 @@ void loop() {
     // [Sec 18] Year (2, 1)
     q_codes[18] = combine_bits(get_bit(year, 1), get_bit(year, 0));
 
-    // === 计算 P2 校验位 (Sec 11-18 的偶校验) ===
     int p2_calc = 0;
     for (int i = 11; i <= 18; i++) {
         p2_calc ^= (q_codes[i] >> 1) & 1;
